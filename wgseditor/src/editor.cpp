@@ -89,8 +89,8 @@ public:
 				else
 					ed_->checkDropLink(pin);
 			}
-			//if(!ed_->isCreatingLink())
-			//	ImGui::SetMouseCursor(ImGuiMouseCursor_Cross);
+			if(!ed_->isCreatingLink())
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Cross);
 		}
 	}
 
@@ -708,10 +708,10 @@ void WGSEditor::drawLinks()
 		}
 
 		dlist->AddBezierCurve(
-			ImVec2(p0.x, p0.y), ImVec2(p1.x, p1.y),
-			ImVec2(p2.x, p2.y), ImVec2(p3.x, p3.y),
-			IM_COL32(0, 0, 0, link_color.w),
-			link_thickness + 3.f);
+			ImVec2(p0.x + 2, p0.y + 2), ImVec2(p1.x + 2, p1.y + 2),
+			ImVec2(p2.x + 2, p2.y + 2), ImVec2(p3.x + 2, p3.y + 2),
+			IM_COL32(0, 0, 0, 32),
+			link_thickness + 2.f);
 
 		dlist->AddBezierCurve(
 			ImVec2(p0.x, p0.y), ImVec2(p1.x, p1.y),
