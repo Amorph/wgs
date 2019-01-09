@@ -1,0 +1,4 @@
+[submodule "wgseditor/thirdparty/imgui"]
+	path = wgseditor/thirdparty/imgui
+	url = https://github.com/Amorph/imgui.git
+	branch = docking
