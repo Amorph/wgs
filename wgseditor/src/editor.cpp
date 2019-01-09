@@ -510,6 +510,9 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 	ed.screen_pos.w = ed.screen_pos.y + unit_size.y;
 
 	bool canDrag = false;
+	ImGui::PushClipRect(ImVec2(unit_pos.x, unit_pos.y), ImVec2(unit_pos.x + unit_size.x + 8, unit_pos.y + unit_size.y + 8), false);
+	unit_draw_list->AddRect(ImVec2(unit_pos.x + 1, unit_pos.y + 1), ImVec2(unit_pos.x + unit_size.x + 3, unit_pos.y + unit_size.y + 3), IM_COL32(0, 0, 0, 32), 8, 15, 5.f);
+	ImGui::PopClipRect();
 
 	unit_draw_list->AddRectFilled(unit_pos, ImVec2(unit_pos.x + unit_size.x, unit_pos.y + unit_size.y), IM_COL32(20, 20, 20, 128), 4);
 	if (!unit->pure())
@@ -703,6 +706,12 @@ void WGSEditor::drawLinks()
 			if (ImGui::Selectable("Break link")) to_remove = it;
 			ImGui::EndPopup();
 		}
+
+		dlist->AddBezierCurve(
+			ImVec2(p0.x, p0.y), ImVec2(p1.x, p1.y),
+			ImVec2(p2.x, p2.y), ImVec2(p3.x, p3.y),
+			IM_COL32(0, 0, 0, link_color.w),
+			link_thickness + 3.f);
 
 		dlist->AddBezierCurve(
 			ImVec2(p0.x, p0.y), ImVec2(p1.x, p1.y),
