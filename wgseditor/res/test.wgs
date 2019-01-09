@@ -1,0 +1,46 @@
+parent
+	child
+hello0 (1,2)
+hello (1,2,3,v,5)
+descr "argument description"
+module "TestModule1"
+	embedded 1
+	objects
+		variable "var"
+			type float
+			default 1.0
+			limits (-100.1234, 100.0)
+		function "foobar" 
+			descr "function description"
+			input
+				in exec	
+				x float
+					descr "argument description"
+				y float
+					descr "argument description"
+			output
+				out exec
+				res float
+					descr "argument description (test)"
+			pure 0
+			body
+				node interface
+					editor
+						pos (10, 10)
+						size (40, 20)
+					links
+						-> out
+							link sum.in
+				node sum
+					linkage math.sum
+					links
+						<- arg0
+							input.x
+						<- arg1
+							input.y
+						-> out
+							output.out
+				node output
+					links
+						<- res
+							link sum.result

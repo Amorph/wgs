@@ -1,0 +1,13 @@
+1. VM that execute non noded code
+2. Basic Translator from node graph into VM byte code
+3. Translator written on node graph ^_^
+
+Types:
+PODS
+Func
+Modules
+
+Thoughts on VM:
+make modules and use imports - python like
+
+Node format:
