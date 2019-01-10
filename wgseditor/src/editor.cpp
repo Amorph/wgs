@@ -1,4 +1,5 @@
 #include "imgui.h"
+#include "imgui_stdlib.h"
 
 #include <limits.h>
 #include <stddef.h>
@@ -341,7 +342,97 @@ void WGSEditor::draw()
 	}
 	{
 		ImGui::Begin("Property list");
-		ImGui::Text("This is some useful text.");
+		ImGui::Columns(2);
+		ImGui::Separator();
+
+		if (!selection_.empty())
+		{
+			WGSEUnit* unit = *selection_.begin();
+			ImGui::PushID(unit);
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Name");
+			ImGui::NextColumn();
+			ImGui::AlignTextToFramePadding();
+			ImGui::PushItemWidth(-1.f);
+			ImGui::InputText("###Name", &unit->name_);
+			ImGui::NextColumn();
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("IsPure");
+			ImGui::NextColumn();
+			ImGui::AlignTextToFramePadding();
+			ImGui::Checkbox("###IsPure", &unit->pure_);
+			ImGui::NextColumn();
+			ImGui::Separator();
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Inputs");
+			ImGui::NextColumn();
+			ImGui::Button("Add pin###add_input");
+			ImGui::NextColumn();
+			ImGui::Separator();
+
+			WGSEPinList& inputs = unit->inputs_;
+			for (WGSEUnitPin* pin : inputs)
+			{
+				ImGui::PushID(pin);
+				ImGui::AlignTextToFramePadding();
+				ImGui::PushItemWidth(-1.f);
+				ImGui::InputText("###Name", &pin->name_);
+				ImGui::NextColumn();
+				ImGui::AlignTextToFramePadding();
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
+				ImGui::Button("-###Del");
+				ImGui::SameLine();
+				ImGui::Button("^###Up");
+				ImGui::SameLine();
+				ImGui::Button("v###Down");
+				ImGui::PopStyleVar();
+				ImGui::SameLine();
+				ImGui::PushItemWidth(-1.f);
+				ImGui::InputText("###TypeName", &pin->type()->name_);
+				//ImGui::Text(pin->type()->name().c_str());
+
+				ImGui::NextColumn();
+				ImGui::PopID();
+			}
+
+			ImGui::Separator();
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Outputs");
+			ImGui::NextColumn();
+			ImGui::Button("Add pin###add_output");
+			ImGui::NextColumn();
+			ImGui::Separator();
+			WGSEPinList& outputs = unit->outputs_;
+			for (WGSEUnitPin* pin : outputs)
+			{
+				ImGui::PushID(pin);
+				ImGui::AlignTextToFramePadding();
+				ImGui::PushItemWidth(-1.f);
+				ImGui::InputText("###Name", &pin->name_);
+				ImGui::NextColumn();
+				ImGui::AlignTextToFramePadding();
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.f, 0.f));
+				ImGui::Button("-###Del");
+				ImGui::SameLine();
+				ImGui::Button("^###Up");
+				ImGui::SameLine();
+				ImGui::Button("v###Down");
+				ImGui::PopStyleVar();
+				ImGui::SameLine();
+				ImGui::PushItemWidth(-1.f);
+				ImGui::InputText("###TypeName", &pin->type()->name_);
+				//ImGui::Text(pin->type()->name().c_str());
+
+				ImGui::NextColumn();
+				ImGui::PopID();
+			}
+
+			ImGui::PopID();
+		}
+
+		ImGui::Columns(1);
+		ImGui::Separator();
 		ImGui::End();
 	}
 	{
@@ -523,9 +614,17 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 
 	//if (input_pins_block.y > 0 && output_pins_block.y > 0)
 	//	computed_size.x += 20;
-
-	ed.size.x = wgs_max(ed.size.x, computed_size.x);
-	ed.size.y = wgs_max(ed.size.y, computed_size.y);
+	bool resizible = false;
+	if (resizible)
+	{
+		ed.size.x = wgs_max(ed.size.x, computed_size.x);
+		ed.size.y = wgs_max(ed.size.y, computed_size.y);
+	}
+	else
+	{
+		ed.size.x = computed_size.x;
+		ed.size.y = computed_size.y;
+	}
 	
 	ImGui::PushID(id);
 	ImGui::SetCursorPos(ImVec2(ed.pos.x, ed.pos.y));
