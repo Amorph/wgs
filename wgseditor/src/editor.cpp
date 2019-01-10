@@ -48,7 +48,7 @@ protected:
 class WGSUnitPinDrawComponentBase : public WGSUnitPinDrawComponent
 {
 protected:
-	const wgs_vec2i32 PIN_EXTENT = { 7, 5 };
+	const wgs_vec2i32 PIN_EXTENT = { 18, 5 };
 
 public:
 	WGSUnitPinDrawComponentBase(WGSEditor* editor) : ed_(editor){}
@@ -67,6 +67,24 @@ public:
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
 
 		ImDrawList* dlist = ImGui::GetWindowDrawList();
+		wgs_vec4i32& pin_color = pin->type()->ed().pin_color;
+
+		if (!ed_->isDragging() && ImGui::IsMouseHoveringRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y)))
+		{
+			wgs_uint8 a = 64;
+			wgs_uint8 b = 4;
+
+			if (!input)
+				std::swap(a, b);
+
+			dlist->AddRectFilledMultiColor(canvas_pos, 
+				ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), 
+				IM_COL32(pin_color.x, pin_color.y, pin_color.z, a),
+				IM_COL32(pin_color.x, pin_color.y, pin_color.z, b),
+				IM_COL32(pin_color.x, pin_color.y, pin_color.z, b),
+				IM_COL32(pin_color.x, pin_color.y, pin_color.z, a));
+		}
+
 		//Debug rect
 		//dlist->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(255, 255, 255, 255));
 		ImVec2 name_pos = canvas_pos;
@@ -96,11 +114,19 @@ public:
 
 	void drawPinConnector(WGSEUnit* unit, WGSEUnitPin* pin, bool input) override
 	{
+		const wgs_int32 CONNECTOR_SIZE = 4;
 		ImDrawList* dlist = ImGui::GetWindowDrawList();
-		wgs_vec4i32& pin_cursor = pin->ed().connector_screen_pos;
+		wgs_vec4i32 pin_cursor = pin->ed().connector_screen_pos;
+		wgs_vec2i32 pin_size = { pin_cursor.z - pin_cursor.x, pin_cursor.w - pin_cursor.y };
 		wgs_vec4i32& pin_color = pin->type()->ed().pin_color;
+
+		//dlist->AddRect(ImVec2(pin_cursor.x, pin_cursor.y), ImVec2(pin_cursor.z, pin_cursor.w), IM_COL32(255, 255, 255, 255));
+
+		pin_cursor.y += (pin_size.y >> 1) - CONNECTOR_SIZE;
+		pin_cursor.x += (pin_size.x >> 1) - CONNECTOR_SIZE;
+ 
+		//dlist->PushClipRect(ImVec2(pin_cursor.x, pin_cursor.y), ImVec2(pin_cursor.z, pin_cursor.w));
 		
-		dlist->PushClipRect(ImVec2(pin_cursor.x, pin_cursor.y), ImVec2(pin_cursor.z, pin_cursor.w));
 		if (pin->ed().has_links)
 		{
 			dlist->AddCircleFilled(ImVec2(pin_cursor.x + 4.f, pin_cursor.y + 4.f), 4.f, IM_COL32(pin_color.x, pin_color.y, pin_color.z, pin_color.w), 8);
@@ -112,7 +138,7 @@ public:
 		// will be set on links draw if links are present
 		pin->ed().has_links = false;
 		
-		dlist->PopClipRect();
+		//dlist->PopClipRect();
 	}
 protected:
 	WGSEditor* ed_;
@@ -124,13 +150,22 @@ public:
 	WGSUnitPinDrawComponentExec(WGSEditor* editor) : WGSUnitPinDrawComponentBase(editor) {}
 	void drawPinConnector(WGSEUnit* unit, WGSEUnitPin* pin, bool input) override
 	{
+		const wgs_int32 CONNECTOR_SIZE = 4;
+
 		ImDrawList* dlist = ImGui::GetWindowDrawList();
-		wgs_vec4i32& pin_cursor = pin->ed().connector_screen_pos;
+		wgs_vec4i32 pin_cursor = pin->ed().connector_screen_pos;
+
+		wgs_vec2i32 pin_size = { pin_cursor.z - pin_cursor.x, pin_cursor.w - pin_cursor.y };
+
+		//dlist->AddRect(ImVec2(pin_cursor.x, pin_cursor.y), ImVec2(pin_cursor.z, pin_cursor.w), IM_COL32(255, 255, 255, 255));
+
+		pin_cursor.y += (pin_size.y >> 1) - CONNECTOR_SIZE;
+		pin_cursor.x += (pin_size.x >> 1) - CONNECTOR_SIZE;
 
 		ImVec2 a = ImVec2(pin_cursor.x + 0.f, pin_cursor.y + 0.f);
 		ImVec2 b = ImVec2(pin_cursor.x + 8.f, pin_cursor.y + 4.f);
 		ImVec2 c = ImVec2(pin_cursor.x + 0.f, pin_cursor.y + 8.f);
-		dlist->PushClipRect(ImVec2(pin_cursor.x, pin_cursor.y), ImVec2(pin_cursor.z, pin_cursor.w));
+		
 		if (pin->ed().has_links)
 		{
 			dlist->AddTriangleFilled(a, b, c, IM_COL32(255, 255, 255, 255));
@@ -139,8 +174,6 @@ public:
 		{
 			dlist->AddTriangle(a, b, c, IM_COL32(255, 255, 255, 255), 1.f);
 		}
-		
-		dlist->PopClipRect();
 
 		// will be set on links draw if links are present
 		pin->ed().has_links = false;
@@ -203,7 +236,7 @@ WGSEditor::WGSEditor()
 	WGSEUnitType* floatType = new WGSEUnitType("float");
 	floatType->ed().pin_color = { 0, 255, 0, 255 };
 	WGSEUnitType* int32Type = new WGSEUnitType("int32");
-	int32Type->ed().pin_color = { 0, 255, 128, 255 };
+	int32Type->ed().pin_color = { 0, 128, 128, 255 };
 	WGSEUnitType* vec4i32Type = new WGSEUnitType("vec4i32");
 	WGSEUnitType* vec4fType = new WGSEUnitType("vec4f");
 	
@@ -259,12 +292,12 @@ WGSEditor::WGSEditor()
 	u4->ed().pos.y = 100;
 	current_->addUnit(u4);
 
-	//current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 0), *std::next(u3->inputs_.begin(), 0)));
-	//current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 1), *std::next(u3->inputs_.begin(), 1)));
-	//current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 1), *std::next(u1->inputs_.begin(), 3)));
-	//current_->addLink(new WGSEUnitPinLink(*std::next(u3->outputs_.begin(), 1), *std::next(u1->inputs_.begin(), 0)));
-	//current_->addLink(new WGSEUnitPinLink(*std::next(u2->outputs_.begin(), 0), *std::next(u1->inputs_.begin(), 1)));
-	//scurrent_->addLink(new WGSEUnitPinLink(*std::next(u3->outputs_.begin(), 0), *std::next(u4->inputs_.begin(), 0)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 0), *std::next(u3->inputs_.begin(), 0)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 1), *std::next(u3->inputs_.begin(), 1)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u0->outputs_.begin(), 1), *std::next(u1->inputs_.begin(), 3)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u3->outputs_.begin(), 1), *std::next(u1->inputs_.begin(), 0)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u2->outputs_.begin(), 0), *std::next(u1->inputs_.begin(), 1)));
+	current_->addLink(new WGSEUnitPinLink(*std::next(u3->outputs_.begin(), 0), *std::next(u4->inputs_.begin(), 0)));
 }
 
 WGSEditor::~WGSEditor()
@@ -442,7 +475,8 @@ void WGSEditor::drawCurrent()
 void WGSEditor::drawUnit(WGSEUnit* unit)
 {
 	const wgs_int32 PIN_HEIGHT = 18;
-	
+	const wgs_int32 connector_size = 18;
+
 	WGSEUnitEditorData& ed = unit->ed();
 	wgs_uint32 id = ed.id;
 	if (!id)
@@ -455,7 +489,6 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 	if (unit->pure())
 		header_size.y = 0;
 
-	wgs_int32 connector_size = 8;
 	wgs_vec2i32 computed_size = header_size;
 	wgs_vec2i32 input_pins_block = { 0, 0 };
 	wgs_vec2i32 output_pins_block = { 0, 0 };
@@ -488,8 +521,8 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 	computed_size.x = wgs_max(computed_size.x, input_pins_block.x + output_pins_block.x);
 	computed_size.y += wgs_max(input_pins_block.y, output_pins_block.y);
 
-	if (input_pins_block.y > 0 && output_pins_block.y > 0)
-		computed_size.x += 20;
+	//if (input_pins_block.y > 0 && output_pins_block.y > 0)
+	//	computed_size.x += 20;
 
 	ed.size.x = wgs_max(ed.size.x, computed_size.x);
 	ed.size.y = wgs_max(ed.size.y, computed_size.y);
@@ -548,7 +581,7 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 			wgs_vec4i32& connector = (*it)->ed().connector_screen_pos;
 			wgs_vec2i32& pin_link_center = (*it)->ed().link_pos;
 
-			connector.x = unit_pos.x + cursor.x - (connector_size >> 1);
+			connector.x = unit_pos.x + cursor.x;
 			connector.y = unit_pos.y + cursor.y + (pin_block.y >> 1) - (connector_size >> 1);
 			connector.z = connector.x + connector_size;
 			connector.w = connector.y + connector_size;
@@ -592,7 +625,7 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 			wgs_vec4i32& connector = (*it)->ed().connector_screen_pos;
 			wgs_vec2i32& pin_link_center = (*it)->ed().link_pos;
 
-			connector.x = unit_pos.x + unit_size.x - (connector_size >> 1);
+			connector.x = unit_pos.x + unit_size.x - connector_size;
 			connector.y = unit_pos.y + cursor.y + (pin_block.y >> 1) - (connector_size >> 1);
 			connector.z = connector.x + connector_size;
 			connector.w = connector.y + connector_size;
@@ -629,6 +662,8 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 	ImGui::EndChild();
 	ImGui::PopID();
 
+	wgs_uint8 rect_alpha = 0;
+
 	if (ImGui::IsMouseHoveringRect(unit_pos, ImVec2(unit_pos.x + unit_size.x, unit_pos.y + unit_size.y)))
 	{
 		if (hover()->wantHover(unit))
@@ -636,13 +671,18 @@ void WGSEditor::drawUnit(WGSEUnit* unit)
 			if (canDrag && !isDragging() && !isCreatingLink())
 			{
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
-				if (ImGui::IsMouseDown(0))
+				if (ImGui::IsMouseDragging(0))
 					startDrag(unit);
 			}
-
-			unit_draw_list->AddRect(ImVec2(unit_pos.x - 1, unit_pos.y - 1), ImVec2(unit_pos.x + unit_size.x + 1, unit_pos.y + unit_size.y + 1), IM_COL32(255, 255, 0, 128), 8, 15, 1.f);
+			if (!isCreatingLink() && ImGui::IsMouseClicked(0))
+				clickSelection(unit);
+			rect_alpha = 64;
 		}
 	}
+	if (isSelected(unit))
+		rect_alpha = 255;
+	if(rect_alpha)
+		unit_draw_list->AddRect(ImVec2(unit_pos.x - 1, unit_pos.y - 1), ImVec2(unit_pos.x + unit_size.x + 1, unit_pos.y + unit_size.y + 1), IM_COL32(255, 255, 0, rect_alpha), 8, 15, 2.f);
 }
 
 void WGSEditor::drawLinks()
@@ -821,4 +861,15 @@ void WGSEditor::finishLinking()
 			std::swap(createLinkPin_, createLinkDropPin_);
 		current_->addLink(new WGSEUnitPinLink(createLinkPin_, createLinkDropPin_));
 	}
+}
+
+bool WGSEditor::isSelected(WGSEUnit* unit)
+{
+	return std::find(selection_.begin(), selection_.end(), unit) != selection_.end();
+}
+
+void WGSEditor::clickSelection(WGSEUnit* unit)
+{
+	selection_.clear();
+	selection_.push_back(unit);
 }

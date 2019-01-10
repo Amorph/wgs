@@ -49,6 +49,10 @@ public:
 	WGSUnitPinDrawComponent* getPinDrawCoponent(WGSEUnitPin* pin);
 
 	bool getPinUnit(WGSEUnitPin* pin, WGSEUnit** unit, wgs_bool* is_input);
+
+	bool isSelected(WGSEUnit* unit);
+	void clickSelection(WGSEUnit* unit);
+
 protected:
 	void drawCurrent();
 	void drawUnit(WGSEUnit* unit);
@@ -64,6 +68,8 @@ protected:
 
 	WGSEUnitPin*		createLinkPin_;
 	WGSEUnitPin*		createLinkDropPin_;
+
+	WGSEUnitList		selection_;
 
 	WGSUnitHeaderDrawComponent* header_draw_;
 	WGSUnitPinDrawComponent*	pin_draw_;
