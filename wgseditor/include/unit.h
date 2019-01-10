@@ -25,6 +25,7 @@ struct WGSEUnitTypeEditorData
 
 class WGSEUnitType
 {
+	friend class WGSEditor;
 public:
 	WGSEUnitType(const WGSETypeName& name) : name_(name) {};
 	const WGSETypeName& name() { return name_; }
@@ -50,6 +51,7 @@ struct WGSEUnitPinEditorData
 
 class WGSEUnitPin : public WGSEDiagramNode
 {
+	friend class WGSEditor;
 public:
 	static const wgs_uint32 TYPE = 0x0010;
 public:

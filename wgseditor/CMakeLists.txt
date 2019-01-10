@@ -24,6 +24,7 @@ set(library_SOURCES
 
 set(library_IMGUI_HEADERS
 	thirdparty/imgui/imgui.h
+	thirdparty/imgui/misc/cpp/imgui_stdlib.h
 	thirdparty/imgui/examples/imgui_impl_dx11.h
 	thirdparty/imgui/examples/imgui_impl_win32.h
 )
@@ -33,6 +34,7 @@ set(library_IMGUI_SOURCES
 	thirdparty/imgui/imgui_widgets.cpp
 	thirdparty/imgui/imgui_demo.cpp
 	thirdparty/imgui/imgui_draw.cpp
+	thirdparty/imgui/misc/cpp/imgui_stdlib.cpp
 	thirdparty/imgui/examples/imgui_impl_dx11.cpp
 	thirdparty/imgui/examples/imgui_impl_win32.cpp
 )
@@ -45,5 +47,6 @@ target_link_libraries(wgseditor wgseruntime wgscommon d3d11 d3dcompiler dxguid)
 target_include_directories(wgseditor
 	PUBLIC ${PROJECT_SOURCE_DIR}/include
 	PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/imgui/
+	PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/imgui/misc/cpp
 	PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/imgui/examples
 )
